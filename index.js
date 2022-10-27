@@ -16,8 +16,21 @@ const credentials = require("./credentials");
   await passwordInputBox.type(credentials.PASSWORD);
 
   const loginButton = (await page.$$("button"))[1];
-
   await loginButton.click();
+
+  await page.waitForNavigation();
+
+  const USERNAME = "kingjames";
+  await page.goto(`https://instagram.com/${USERNAME}`);
+
+  await page.waitForSelector("article a");
+
+  const firstImage = await page.$("article a");
+  await firstImage.click();
+
+  await page.waitForTimeout(2000);
+  const heartButton = (await page.$$("button"))[9];
+  await heartButton.click();
 
   // await browser.close();
 })();
