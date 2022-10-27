@@ -20,17 +20,45 @@ const credentials = require("./credentials");
 
   await page.waitForNavigation();
 
-  const USERNAME = "kingjames";
-  await page.goto(`https://instagram.com/${USERNAME}`);
+  const usernames = ["therock", "kingjames", "champagnepapi"];
 
-  await page.waitForSelector("article a");
+  // this loop will visit each one of the usernames' pages and scrape them
+  for (let i = 0; i < usernames.length; i++) {
+    let username = usernames[i];
+    await page.goto(`https://instagram.com/${username}`);
+    await page.waitForSelector("img");
 
-  const firstImage = await page.$("article a");
-  await firstImage.click();
+    const profilePicSrc = await page.$eval("img", (element) =>
+      element.getAttribute("src")
+    ).catch((e) => console.log(e));
 
-  await page.waitForTimeout(2000);
-  const heartButton = (await page.$$("button"))[9];
-  await heartButton.click();
+
+    const stats = await page.$$eval("header li", (elements) =>
+      elements.map((element) => element.textContent)
+    );
+
+
+    const fullName = await page.$eval(
+      "._aa_c :nth-child(1)",
+      (element) => element.textContent
+    ).catch((e) => console.log(e));
+
+
+    const bio = await page.$eval(
+      "._aa_c :nth-child(3)",
+      (element) => element.textContent
+    ).catch((e) => console.log(e));
+
+    const profileLink = await page.$eval(
+        "._aa_c a",
+        (element) => element.textContent
+      ).catch((e) => console.log(e))
+
+      
+    const profile = {profilePicSrc, stats, fullName, bio, profileLink};
+    console.log(profile);
+
+  }
 
   // await browser.close();
 })();
