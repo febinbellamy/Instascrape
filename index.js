@@ -60,8 +60,25 @@ const credentials = require("./credentials");
       )
       .catch((e) => console.log(e));
 
-    const profile = { profilePicSrc, stats, fullName, bio, profileLink };
-    console.log(profile);
+    // these are the row names for the spreadsheet
+    const profile = {
+      profilePicSrc,
+      stats,
+      fullName,
+      bio,
+      profileLink,
+      username,
+    };
+
+    // splits the stats data and puts it into the profile object
+    for (let i = 0; i < stats.length; i++) {
+      let stat = stats[i];
+      const [count, name] = stat.split(" ");
+      profile[name] = count;
+    }
+
+    console.log({ profile });
+
   }
 
   // await browser.close();
