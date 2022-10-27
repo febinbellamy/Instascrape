@@ -20,7 +20,13 @@ const credentials = require("./credentials");
 
   await page.waitForNavigation();
 
-  const usernames = ["therock", "kingjames", "champagnepapi"];
+  const usernames = [
+    "therock",
+    "kingjames",
+    "champagnepapi",
+    "igpr0",
+    "duranthighlights",
+  ];
 
   // this loop will visit each one of the usernames' pages and scrape them
   for (let i = 0; i < usernames.length; i++) {
@@ -28,36 +34,34 @@ const credentials = require("./credentials");
     await page.goto(`https://instagram.com/${username}`);
     await page.waitForSelector("img");
 
-    const profilePicSrc = await page.$eval("img", (element) =>
-      element.getAttribute("src")
-    ).catch((e) => console.log(e));
-
+    const profilePicSrc = await page
+      .$eval("img", (element) => element.getAttribute("src"))
+      .catch((e) => console.log(e));
 
     const stats = await page.$$eval("header li", (elements) =>
       elements.map((element) => element.textContent)
     );
 
+    const fullName = await page
+      .$eval("._aa_c span", (element) => element.textContent)
+      .catch((e) => console.log(e));
 
-    const fullName = await page.$eval(
-      "._aa_c :nth-child(1)",
-      (element) => element.textContent
-    ).catch((e) => console.log(e));
-
-
-    const bio = await page.$eval(
-      "._aa_c :nth-child(3)",
-      (element) => element.textContent
-    ).catch((e) => console.log(e));
-
-    const profileLink = await page.$eval(
-        "._aa_c a",
+    const bio = await page
+      .$eval(
+        "._aa_c ._aacl._aacp._aacu._aacx._aad6._aade",
         (element) => element.textContent
-      ).catch((e) => console.log(e))
+      )
+      .catch((e) => console.log(e));
 
-      
-    const profile = {profilePicSrc, stats, fullName, bio, profileLink};
+    const profileLink = await page
+      .$eval(
+        "._aacl._aacp._aacw._aacz._aada._aade",
+        (element) => element.textContent
+      )
+      .catch((e) => console.log(e));
+
+    const profile = { profilePicSrc, stats, fullName, bio, profileLink };
     console.log(profile);
-
   }
 
   // await browser.close();
