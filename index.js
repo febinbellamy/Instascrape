@@ -3,7 +3,7 @@ const credentials = require("./credentials");
 const Sheet = require("./sheet");
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://instagram.com");
 
@@ -21,55 +21,53 @@ const Sheet = require("./sheet");
 
   await page.waitForNavigation();
 
-  const usernames = [
-    "therock",
-    "kingjames",
-    "champagnepapi",
-    "igpr0",
-    "duranthighlights",
-  ];
+  const sheet = new Sheet();
+  await sheet.load();
+
+  const allUsernames = (await sheet.getRows(0)).map((row) => row.username);
 
   const profiles = [];
 
-  for (let i = 0; i < usernames.length; i++) {
-    let username = usernames[i];
-    await page.goto(`https://instagram.com/${username}`);
+  for (let i = 0; i < allUsernames.length; i++) {
+    let USERNAME = allUsernames[i];
+
+    await page.goto(`https://instagram.com/${USERNAME}`);
     await page.waitForSelector("img");
-    
-    await page.waitForTimeout(3000);
 
     const profilePicSrc = await page
       .$eval("img", (element) => element.getAttribute("src"))
-      .catch(() => false);
+      .catch((err) => false);
 
-    const stats = await page.$$eval("header li", (elements) =>
-      elements.map((element) => element.textContent)
-    );
+    const stats = await page
+      .$$eval("header li", (elements) =>
+        elements.map((element) => element.textContent)
+      )
+      .catch((err) => false);
 
     const fullName = await page
       .$eval("._aa_c span", (element) => element.textContent)
-      .catch(() => false);
+      .catch((err) => false);
 
     const bio = await page
       .$eval(
         "._aa_c ._aacl._aacp._aacu._aacx._aad6._aade",
         (element) => element.textContent
       )
-      .catch(() => false);
+      .catch((err) => false);
 
     const profileLink = await page
       .$eval(
         "._aacl._aacp._aacw._aacz._aada._aade",
         (element) => element.textContent
       )
-      .catch(() => false);
+      .catch((err) => false);
 
     const profile = {
       profilePicSrc,
       fullName,
       bio,
       profileLink,
-      username: username,
+      username: USERNAME,
     };
 
     for (let stat of stats) {
@@ -79,17 +77,14 @@ const Sheet = require("./sheet");
     profiles.push(profile);
   }
 
-  const sheet = new Sheet();
-  await sheet.load();
-
-  const prevProfiles = await sheet.getRows(0);
+  const prevProfiles = await sheet.getRows(1);
   for (let prevProfile of prevProfiles) {
-    if (usernames.includes(prevProfile.username)) {
+    if (allUsernames.includes(prevProfile.username)) {
       await prevProfile.delete();
     }
   }
 
-  await sheet.addRows(profiles, 0);
+  await sheet.addRows(profiles, 1);
 
   await browser.close();
 })();
