@@ -1,5 +1,5 @@
 # Instascrape
-Instascrape is a web scrapping app that returns an Instagram user’s following/follower count, post count, bio, username, and profile picture.
+Instascrape is a web scraping app that returns an Instagram user’s following/follower count, post count, bio, username, and profile picture.
 
 https://user-images.githubusercontent.com/89381034/200910415-04ba003d-474b-46fc-b0c6-9fcf5df613d4.mp4
 
